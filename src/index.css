@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Righteous&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design System: MovieDisc OLED Dark ─────────────────────────────── */
+:root {
+  --bg-deep:      #0F0F23;
+  --bg-card:      #14142A;
+  --bg-surface:   #1E1B4B;
+  --accent:       #4338CA;
+  --accent-light: #6366F1;
+  --cta:          #22C55E;
+  --text-primary: #F8FAFC;
+  --text-muted:   #94A3B8;
+  --border:       rgba(99, 102, 241, 0.2);
+  --glow:         0 0 24px rgba(99, 102, 241, 0.18);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: 'Righteous', cursive; letter-spacing: 0.02em; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 2px; }
+
+@layer components {
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500
+           text-white font-semibold text-sm transition-all duration-200 cursor-pointer
+           focus-visible:ring-2 focus-visible:ring-indigo-400
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-outline {
+    @apply px-5 py-2.5 rounded-xl border border-indigo-500/40 text-indigo-300
+           hover:border-indigo-400 hover:text-white text-sm font-medium
+           transition-all duration-200 cursor-pointer;
+  }
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3
+           text-white placeholder-slate-500 text-sm
+           focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50
+           transition-colors duration-200;
+  }
+  .card-base {
+    @apply bg-[#14142A] border border-indigo-900/30 rounded-2xl transition-all duration-200;
+  }
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in  { animation: fadeIn  0.4s ease-out; }
+  .animate-slide-up { animation: slideUp 0.4s ease-out; }
+  .glow-indigo { box-shadow: var(--glow); }
+}
+
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
