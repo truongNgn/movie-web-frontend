@@ -59,6 +59,9 @@ h1, h2, h3 { font-family: 'Righteous', cursive; letter-spacing: 0.02em; }
   .glass {
     @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
   }
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }
 
 @layer utilities {

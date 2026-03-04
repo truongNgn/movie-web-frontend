@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import MovieDetailPage from "./pages/MovieDetailPage";
 import HealthPage from "./pages/HealthPage";
 import WatchlistPage from "./pages/WatchlistPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/movies/:id" element={<MovieDetailPage />} />
             <Route path="/health" element={<HealthPage />} />
             <Route path="/watchlist" element={<WatchlistPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>

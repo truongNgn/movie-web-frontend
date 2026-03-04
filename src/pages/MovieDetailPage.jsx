@@ -1,10 +1,32 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMovie } from "../hooks/useMovies";
 import StarRating from "../components/StarRating";
 import WatchlistButton from "../components/WatchlistButton";
+import { fetchMovies } from "../api/movies";
+import MovieCard from "../components/MovieCard";
 
 const TMDB_W500 = "https://image.tmdb.org/t/p/w500";
 const TMDB_W1280 = "https://image.tmdb.org/t/p/w1280";
+
+// Array of curated movie-themed Unsplash images (Star Wars, Harry Potter, etc vibes)
+const FALLBACK_POSTERS = [
+  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&h=750&fit=crop&q=80", // Film reels
+  "https://images.unsplash.com/photo-1585951237318-9ea5e175b891?w=500&h=750&fit=crop&q=80", // Movie slate
+  "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=500&h=750&fit=crop&q=80", // Cinema sign
+  "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=500&h=750&fit=crop&q=80", // Camera lens
+  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=500&h=750&fit=crop&q=80", // Film theater
+  "https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=500&h=750&fit=crop&q=80", // Clapperboard
+  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500&h=750&fit=crop&q=80", // Vintage camera
+  "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=500&h=750&fit=crop&q=80", // Retro TV
+  "https://images.unsplash.com/photo-1604998103924-89e012e5265a?w=500&h=750&fit=crop&q=80", // Netflix vibe
+  "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=500&h=750&fit=crop&q=80", // Photography
+];
+
+function getFallbackImage(id) {
+  const index = id ? id % FALLBACK_POSTERS.length : 0;
+  return FALLBACK_POSTERS[index];
+}
 
 function SkeletonDetail() {
   return (
@@ -18,6 +40,40 @@ function SkeletonDetail() {
           <div className="h-4 bg-indigo-950/50 rounded w-full" />
           <div className="h-4 bg-indigo-950/50 rounded w-5/6" />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SimilarMovies({ currentMovie }) {
+  const [similar, setSimilar] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentMovie?.genres?.length) {
+      setLoading(false);
+      return;
+    }
+    const genreId = currentMovie.genres[0].id;
+    fetchMovies({ genre_id: genreId, limit: 12 }).then(data => {
+      const filtered = (data.results || []).filter(m => m.id !== currentMovie.id).slice(0, 5);
+      setSimilar(filtered);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [currentMovie]);
+
+  if (loading || similar.length === 0) return null;
+
+  return (
+    <div className="mt-16 animate-fade-in-up">
+      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-indigo-400">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+        You Might Also Like
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {similar.map(movie => <MovieCard key={movie.id} movie={movie} />)}
       </div>
     </div>
   );
@@ -54,26 +110,25 @@ export default function MovieDetailPage() {
       <div className="container mx-auto px-4 pb-12" style={{ marginTop: movie.poster_path ? "-6rem" : "2rem" }}>
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white mb-6 transition-colors">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-            <path d="M19 12H5m7-7-7 7 7 7"/>
+            <path d="M19 12H5m7-7-7 7 7 7" />
           </svg>
           Back to Browse
         </Link>
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Poster */}
-          <div className="md:w-56 shrink-0">
+          <div className="md:w-56 shrink-0 z-10">
             {movie.poster_path ? (
               <img src={`${TMDB_W500}${movie.poster_path}`} alt={movie.title}
                 className="w-48 md:w-full rounded-2xl shadow-2xl shadow-black/50 mx-auto md:mx-0" />
             ) : (
-              <div className="w-48 md:w-full aspect-[2/3] rounded-2xl bg-indigo-950/50 flex items-center justify-center text-indigo-700 mx-auto md:mx-0">
-                No image
-              </div>
+              <img src={getFallbackImage(movie.id)} alt={movie.title}
+                className="w-48 md:w-full rounded-2xl shadow-2xl shadow-black/50 mx-auto md:mx-0 opacity-80" />
             )}
           </div>
 
           {/* Info */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 z-10">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">{movie.title}</h1>
 
             {/* Meta row */}
@@ -84,7 +139,7 @@ export default function MovieDetailPage() {
               {movie.avg_rating && (
                 <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                   {Number(movie.avg_rating).toFixed(1)}
                   <span className="text-slate-500 font-normal">({movie.ratings_count} ratings)</span>
@@ -129,6 +184,9 @@ export default function MovieDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Similar Movies Section */}
+        <SimilarMovies currentMovie={movie} />
       </div>
     </div>
   );
